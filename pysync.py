@@ -1,11 +1,15 @@
 #simple Sync System
 
-#each data item has a record of who you *first* recieved it from, and when.
+#current features
 #have a record of when you last synced with each contact.
 #When connecting with a contact, get them up to date with items since.
 
+#future features
+#each data item has a record of who you *first* recieved it from, and when.#not implemented
+#check with contact before sending data item by sending hash (if item is large)
+
 items_by_recv_date = []
-item_from = {}
+#item_from = {}
 items = {}
 contacts = {}
 
@@ -27,9 +31,15 @@ def send_item(contact, item):
 def sync_to_contact(cId):
 	contact = contacts[cId]
 	ls = contact['last_sync']
-	now =int(time.time())
+	#now =int(time.time())
 	for i in items_by_recv_date[ls:]:
-		if cId in groups[item['group']] and cId in topics[item['topic']]:
+		can_send = True
+		if 'group' in item and cId not in groups[item['group']]:
+			can_send = False
+		if cId not in topics[item['topic']]:
+			can_send = False
+		
+		if can_send:
 			send_item(cId, i)
 	#should confirm contact has got data, then:
 	contact['last_sync'] = len(items_by_recv_date)
